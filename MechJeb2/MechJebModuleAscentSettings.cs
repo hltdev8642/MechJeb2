@@ -102,6 +102,13 @@ namespace MuMech
         [Persistent(pass = (int)(Pass.TYPE | Pass.GLOBAL))]
         public bool SkipCircularization = false;
 
+        // Auto-Q: automatically throttle down when dynamic pressure exceeds threshold
+        [Persistent(pass = (int)(Pass.TYPE | Pass.GLOBAL))]
+        public bool AutoQControl = false;
+
+        [Persistent(pass = (int)(Pass.TYPE | Pass.GLOBAL))]
+        public readonly EditableDouble AutoQMax = new EditableDouble(25000);
+
         [Persistent(pass = (int)(Pass.TYPE | Pass.GLOBAL))]
         public readonly EditableDouble RollAltitude = new EditableDouble(50);
 

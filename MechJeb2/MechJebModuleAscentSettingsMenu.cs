@@ -1,4 +1,4 @@
-extern alias JetBrainsAnnotations;
+﻿extern alias JetBrainsAnnotations;
 using UnityEngine;
 using UnityEngine.Profiling;
 
@@ -28,6 +28,24 @@ namespace MuMech
             if (_ascentSettings.AscentType != AscentType.PSG) Core.Thrust.LimitThrottleInfoItem();
             Core.Thrust.LimiterMinThrottleInfoItem();
             if (_ascentSettings.AscentType != AscentType.PSG) Core.Thrust.LimitElectricInfoItem();
+
+            // Auto-Q: Auto-throttle to stay below max dynamic pressure
+            if (_ascentSettings.AscentType == AscentType.CLASSIC)
+            {
+                GUILayout.BeginHorizontal();
+                _ascentSettings.AutoQControl = GUILayout.Toggle(_ascentSettings.AutoQControl,
+                    CachedLocalizer.Instance.MechJebAscentCheckbox4, // re-use existing localized string or hardcode
+                    GuiUtils.ExpandWidth(false));
+                if (_ascentSettings.AutoQControl)
+                {
+                    GuiUtils.SimpleTextBox(" Auto-Q:", _ascentSettings.AutoQMax, "Pa", 50, horizontalFraming: false);
+                }
+                else
+                {
+                    GUILayout.Label(" Auto-Q: Off");
+                }
+                GUILayout.EndHorizontal();
+            }
 
             if (_ascentSettings.AscentType == AscentType.PSG)
             {

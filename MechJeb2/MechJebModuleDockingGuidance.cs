@@ -1,4 +1,4 @@
-extern alias JetBrainsAnnotations;
+﻿extern alias JetBrainsAnnotations;
 using System.Linq;
 using KSP.Localization;
 using UnityEngine;
@@ -56,7 +56,12 @@ namespace MuMech
 
             bool active = GUILayout.Toggle(autopilot.Enabled, Localizer.Format("#MechJeb_Docking_checkbox1")); // "Autopilot enabled"
             GuiUtils.SimpleTextBox(Localizer.Format("#MechJeb_Docking_label5"), autopilot.speedLimit, "m/s");  //"Speed limit"
-
+            autopilot.AutoSelectPort =
+                GUILayout.Toggle(autopilot.AutoSelectPort, "Auto-select port");
+            if (autopilot.AutoSelectPort && GUILayout.Button("Find Port Now"))
+            {
+                autopilot.AutoSelectDockingPort();
+            }
             autopilot.overrideSafeDistance =
                 GUILayout.Toggle(autopilot.overrideSafeDistance, Localizer.Format("#MechJeb_Docking_checkbox2")); //"Override Safe Distance"
             if (autopilot.overrideSafeDistance)

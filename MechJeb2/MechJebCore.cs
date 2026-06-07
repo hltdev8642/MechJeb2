@@ -54,6 +54,18 @@ namespace MuMech
         public MechJebModuleHoverslamSimulation         Hoverslam;
         public MechJebModuleSmartASS                    SmartASS;
         public MechJebModuleAscentBaseAutopilot         Ascent => AscentSettings.AscentAutopilot;
+        public MechJebModuleRCSHold                     RCSHold;
+        public MechJebModuleLaunchWindowPlanner         LaunchWindowPlanner;
+        public MechJebModuleAerobrakeCalculator         Aerobrake;
+        public MechJebModuleLaunchWindowSync            LaunchWindowSync;
+        public MechJebModuleCommNetPlanner              CommNetPlanner;
+        public MechJebModuleThermalManager              ThermalManager;
+        public MechJebModuleManeuverPreview             ManeuverPreview;
+        public MechJebModuleLayoutPresets               LayoutPresets;
+        public MechJebModule3DTrajectory                Traj3D;
+        public MechJebModuleOrbitalConstruction         OrbitalConstruction;
+        public MechJebModuleCoverageMapper              CoverageMapper;
+        public MechJebModuleScriptedAutopilot           ScriptedAutopilot;
 
         public readonly VesselState VesselState = new VesselState();
 

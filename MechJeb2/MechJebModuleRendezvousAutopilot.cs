@@ -18,6 +18,13 @@ namespace MuMech
         [Persistent(pass = (int)Pass.GLOBAL)]
         public readonly EditableDouble maxClosingSpeed = 100;
 
+        // Proximity operations mode: auto-handoff to docking autopilot
+        [Persistent(pass = (int)Pass.GLOBAL)]
+        public bool ProximityMode = false;
+
+        [Persistent(pass = (int)Pass.GLOBAL)]
+        public readonly EditableDouble ProximityHandoffDistance = new EditableDouble(50);
+
         public string status = "";
 
         protected override void OnModuleEnabled()
@@ -59,7 +66,25 @@ namespace MuMech
                 //finished
                 Users.Clear();
                 Core.Thrust.ThrustOff();
-                status = Localizer.Format("#MechJeb_RZauto_statu1"); //"Successful rendezvous"
+
+                // Proximity mode: auto-handoff to docking autopilot
+                if (ProximityMode && Core.Target.Distance < ProximityHandoffDistance)
+                {
+                    MechJebModuleDockingAutopilot dockingAp = Core.GetComputerModule<MechJebModuleDockingAutopilot>();
+                    if (dockingAp != null && !dockingAp.Enabled)
+                    {
+                        dockingAp.Users.Add(this);
+                        status = Localizer.Format("#MechJeb_RZauto_statu10"); //"Handing off to docking autopilot"
+                    }
+                    else
+                    {
+                        status = Localizer.Format("#MechJeb_RZauto_statu1"); //"Successful rendezvous"
+                    }
+                }
+                else
+                {
+                    status = Localizer.Format("#MechJeb_RZauto_statu1"); //"Successful rendezvous"
+                }
             }
             else if (Core.Target.Distance < desiredDistance * 1.05 + 2)
             {

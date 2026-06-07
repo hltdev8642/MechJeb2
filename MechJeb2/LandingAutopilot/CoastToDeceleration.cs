@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using KSP.Localization;
 using UnityEngine;
@@ -113,17 +113,29 @@ namespace MuMech
                     }
                 }
 
-                //Warp at a rate no higher than the rate that would have us impacting the ground 10 seconds from now:
-                if (_warpReady && Core.Node.Autowarp)
+                // Auto-warp to entry interface: warp until we reach the entry interface altitude
+                if (Core.Landing.AutoWarpToEntry && Core.Node.Autowarp &&
+                    VesselState.altitudeASL > Core.Landing.EntryInterfaceAltitude &&
+                    VesselState.drag < 0.01)
                 {
-                    // Make sure if we're hovering that we don't go straight into too fast of a warp
-                    // (g * 5 is average velocity falling for 10 seconds from a hover)
-                    double velocityGuess = Math.Max(Math.Abs(VesselState.speedVertical), VesselState.localg * 5);
-                    Core.Warp.WarpRegularAtRate((float)(VesselState.altitudeASL / (10 * velocityGuess)));
+                    Core.Warp.WarpRegularAtRate((float)Math.Min(
+                        (VesselState.altitudeASL - Core.Landing.EntryInterfaceAltitude) / 10.0,
+                        TimeWarp.fetch.warpRates[TimeWarp.fetch.warpRates.Length - 1]));
                 }
                 else
                 {
-                    Core.Warp.MinimumWarp();
+                    //Warp at a rate no higher than the rate that would have us impacting the ground 10 seconds from now:
+                    if (_warpReady && Core.Node.Autowarp)
+                    {
+                        // Make sure if we're hovering that we don't go straight into too fast of a warp
+                        // (g * 5 is average velocity falling for 10 seconds from a hover)
+                        double velocityGuess = Math.Max(Math.Abs(VesselState.speedVertical), VesselState.localg * 5);
+                        Core.Warp.WarpRegularAtRate((float)(VesselState.altitudeASL / (10 * velocityGuess)));
+                    }
+                    else
+                    {
+                        Core.Warp.MinimumWarp();
+                    }
                 }
 
                 return this;

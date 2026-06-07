@@ -1,5 +1,6 @@
-#nullable enable
+﻿#nullable enable
 
+using System;
 using MechJebLib.Control;
 using UnityEngine;
 using static MechJebLib.Utils.Statics;
@@ -35,6 +36,11 @@ namespace MuMech
         [ToggleInfoItem("#MechJeb_HoverslamHoldUpright", InfoItem.Category.Hoverslam, tooltip = "#MechJeb_HoverslamHoldUpright_tooltip")]
         [Persistent(pass = (int)(Pass.GLOBAL | Pass.TYPE))] //Hold upright after touchdown
         public bool HoldUpright;
+
+        // Terrain-relative navigation: use PQS raycasts for real-time terrain altitude
+        [ToggleInfoItem("#MechJeb_HoverslamTerrainNav", InfoItem.Category.Hoverslam, tooltip = "#MechJeb_HoverslamTerrainNav_tooltip")]
+        [Persistent(pass = (int)(Pass.GLOBAL | Pass.TYPE))]
+        public bool UseTerrainAltitude = false;
 
         [ValueInfoItem("#MechJeb_HoverslamState", InfoItem.Category.Hoverslam, tooltip = "#MechJeb_HoverslamState_tooltip")] //Hoverslam state
         public string HoverslamState => !Enabled ? "Disabled" : _state.ToString();
@@ -177,14 +183,38 @@ namespace MuMech
 
         private readonly DeltaSigmaThrottleModulator _pwm = new DeltaSigmaThrottleModulator(0.02, DEFAULT_MIN_ON_TIME);
 
+        private double GetTerrainAltitude()
+        {
+            if (!UseTerrainAltitude) return VesselState.altitudeBottom;
+
+            // Use PQS raycast for real-time terrain altitude under the vessel
+            Vector3d vesselPos = VesselState.CoM;
+            double terrainAltitude = 0;
+            try
+            {
+                terrainAltitude = MainBody.TerrainAltitude(
+                    MainBody.GetLatitude(vesselPos),
+                    MainBody.GetLongitude(vesselPos)
+                );
+            }
+            catch
+            {
+                // Fallback to vessel-reported altitude if PQS fails
+                terrainAltitude = VesselState.altitudeBottom;
+            }
+
+            return Math.Max(0, VesselState.altitudeTrue - terrainAltitude);
+        }
+
         private void TickFinalDescent()
         {
             if (Vector3d.Dot(VesselState.surfaceVelocity, VesselState.up) >= -1.0)
                 Core.Attitude.attitudeTo(Vector3d.up, AttitudeReference.SURFACE_NORTH, this);
 
+            double terrainAlt = GetTerrainAltitude();
             double v2 = VesselState.surfaceVelocity.sqrMagnitude;
             double g  = Vessel.graviticAcceleration.magnitude;
-            double h  = VesselState.altitudeBottom;
+            double h  = terrainAlt;
             double vf = TouchdownSpeed;
 
             double accel = g + 0.5 * (v2 - vf * vf) / h;

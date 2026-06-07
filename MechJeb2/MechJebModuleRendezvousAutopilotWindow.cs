@@ -1,4 +1,4 @@
-extern alias JetBrainsAnnotations;
+﻿extern alias JetBrainsAnnotations;
 using KSP.Localization;
 using UnityEngine;
 
@@ -46,6 +46,15 @@ namespace MuMech
                 GuiUtils.SimpleTextBox(Localizer.Format("#MechJeb_RZauto_label4"), autopilot.desiredDistance, "m");   //"Desired final distance:"
                 GuiUtils.SimpleTextBox(Localizer.Format("#MechJeb_RZauto_label5"), autopilot.maxPhasingOrbits);       //"Max # of phasing orbits:"
                 GuiUtils.SimpleTextBox(Localizer.Format("#MechJeb_RZauto_label8"), autopilot.maxClosingSpeed, "m/s"); //"Max closing velocity:"
+
+                // Proximity operations mode toggle
+                GUILayout.BeginHorizontal();
+                autopilot.ProximityMode = GUILayout.Toggle(autopilot.ProximityMode, "Proximity handoff");
+                if (autopilot.ProximityMode)
+                {
+                    GuiUtils.SimpleTextBox("", autopilot.ProximityHandoffDistance, "m", 40);
+                }
+                GUILayout.EndHorizontal();
 
                 if (autopilot.maxPhasingOrbits < 5)
                 {

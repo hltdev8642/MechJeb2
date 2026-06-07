@@ -1,5 +1,6 @@
-extern alias JetBrainsAnnotations;
+﻿extern alias JetBrainsAnnotations;
 using System;
+using System.Linq;
 using KSP.Localization;
 using UnityEngine;
 
@@ -18,6 +19,12 @@ namespace MuMech
 
         [Persistent(pass = (int)Pass.LOCAL)]
         public bool forceRol = false;
+
+        [Persistent(pass = (int)(Pass.GLOBAL | Pass.TYPE))]
+        public bool AutoSelectPort = true;
+
+        [Persistent(pass = (int)(Pass.GLOBAL | Pass.TYPE))]
+        public readonly EditableDouble PortSelectionRange = new EditableDouble(200);
 
         [EditableInfoItem("#MechJeb_DockingSpeedLimit", InfoItem.Category.Thrust, rightLabel = "m/s")] //Docking speed limit
         public EditableDouble overridenSafeDistance = 5;
@@ -88,11 +95,95 @@ namespace MuMech
             }
         }
 
+        // Auto-select the best aligned docking port on the target vessel
+        public void AutoSelectDockingPort()
+        {
+            if (!Core.Target.NormalTargetExists) return;
+
+            Vessel targetVessel = Core.Target.Target.GetVessel();
+            if (targetVessel == null) return;
+
+            ModuleDockingNode bestPort = null;
+            float bestAngle = float.MaxValue;
+
+            foreach (Part part in targetVessel.parts)
+            {
+                if (part.State == PartStates.DEAD) continue;
+
+                foreach (ModuleDockingNode port in part.FindModulesImplementing<ModuleDockingNode>())
+                {
+                    if (!port.isEnabled) continue;
+
+                    // Skip if out of range
+                    Vector3d portPos = port.part.transform.position;
+                    double dist = Vector3d.Distance(portPos, VesselState.CoM);
+                    if (dist > PortSelectionRange) continue;
+
+                    // Check alignment with our vessel's "control from here" direction
+                    Vector3d portDirection = port.part.transform.forward;
+                    Vector3d vesselToPort  = (portPos - VesselState.CoM).normalized;
+
+                    float angle = (float)Vector3d.Angle(portDirection, -vesselToPort);
+
+                    // Prefer ports that face us and are closer
+                    if (angle < bestAngle && angle < 45)
+                    {
+                        bestAngle = angle;
+                        bestPort  = port;
+                    }
+                }
+            }
+
+            if (bestPort != null)
+            {
+                Core.Target.Set(bestPort);
+
+                status = "Auto-selected port: " + bestPort.part.partInfo.title;
+            }
+            else
+            {
+                status = "No compatible port found within range";
+            }
+        }
+
+        private Part FindOurBestDockingPort(Transform targetPortTransform)
+        {
+            Part bestPort = null;
+            float bestAngle = float.MaxValue;
+
+            foreach (Part part in Vessel.parts)
+            {
+                if (part.State == PartStates.DEAD) continue;
+
+                foreach (ModuleDockingNode port in part.FindModulesImplementing<ModuleDockingNode>())
+                {
+                    if (!port.isEnabled) continue;
+
+                    Vector3d portDirection = port.part.transform.forward;
+                    Vector3d toTarget      = (targetPortTransform.position - port.part.transform.position).normalized;
+
+                    float angle = (float)Vector3d.Angle(portDirection, toTarget);
+                    if (angle < bestAngle)
+                    {
+                        bestAngle = angle;
+                        bestPort  = port.part;
+                    }
+                }
+            }
+
+            return bestPort;
+        }
+
         protected override void OnModuleEnabled()
         {
             Core.RCS.Users.Add(this);
             Core.Attitude.Users.Add(this);
             dockingStep = DockingStep.INIT;
+
+            if (AutoSelectPort && Core.Target.NormalTargetExists)
+            {
+                AutoSelectDockingPort();
+            }
         }
 
         protected override void OnModuleDisabled()

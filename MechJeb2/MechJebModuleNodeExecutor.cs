@@ -33,6 +33,13 @@ namespace MuMech
         [Persistent(pass = (int)Pass.GLOBAL)]
         public bool KillRollRotation = true;
 
+        // Multi-node sequence mode
+        [Persistent(pass = (int)Pass.GLOBAL)]
+        public bool SequenceMode = false;
+
+        [Persistent(pass = (int)Pass.GLOBAL)]
+        public readonly EditableDouble SequenceCoastTime = new EditableDouble(30);
+
         // Node Burn Length
         [ValueInfoItem("#MechJeb_NodeBurnLength", InfoItem.Category.Thrust)]
         public string NextNodeBurnTime()
@@ -325,6 +332,15 @@ namespace MuMech
 
             if (_mode == Mode.ALL_NODES && Vessel.patchedConicSolver.maneuverNodes.Count > 0)
                 Init();
+            else if (SequenceMode && Vessel.patchedConicSolver.maneuverNodes.Count > 0)
+            {
+                // Coast between burns, then start next node
+                double nextUt = Vessel.patchedConicSolver.maneuverNodes[0].UT;
+                if (nextUt > VesselState.time + SequenceCoastTime)
+                    Core.Warp.WarpToUT(nextUt - 30);
+                State = States.WARPALIGN;
+                _ignitionUT = CalculateIgnitionUT();
+            }
             else
                 Abort();
 

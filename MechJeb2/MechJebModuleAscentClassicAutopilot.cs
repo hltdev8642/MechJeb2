@@ -1,4 +1,4 @@
-extern alias JetBrainsAnnotations;
+﻿extern alias JetBrainsAnnotations;
 using System;
 using KSP.Localization;
 using UnityEngine;
@@ -112,7 +112,15 @@ namespace MuMech
             }
 
             Core.Thrust.TargetThrottle = ThrottleToRaiseApoapsis(Orbit.ApR, AscentSettings.DesiredOrbitAltitude + MainBody.Radius);
-            if (Core.Thrust.TargetThrottle < 1.0F)
+
+            // Auto-Q: automatically throttle back to stay within max dynamic pressure
+            if (AscentSettings.AutoQControl && VesselState.dynamicPressure > AscentSettings.AutoQMax)
+            {
+                float qThrottle = (float)(AscentSettings.AutoQMax / VesselState.dynamicPressure);
+                Core.Thrust.TargetThrottle = Math.Min(Core.Thrust.TargetThrottle, Math.Max(qThrottle, 0.05F));
+            }
+
+            if (Core.Thrust.TargetThrottle < 1.0F && !(AscentSettings.AutoQControl && VesselState.dynamicPressure > AscentSettings.AutoQMax))
             {
                 AttitudeTo(_desiredPitch * UtilMath.Rad2Deg, _desiredHeading);
                 Status = Localizer.Format("#MechJeb_Ascent_status21"); //"Fine tuning apoapsis"

@@ -1,4 +1,4 @@
-extern alias JetBrainsAnnotations;
+﻿extern alias JetBrainsAnnotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -139,6 +139,16 @@ namespace MuMech
 
                 if (Core.Landing != null)
                     Core.Node.Autowarp = GUILayout.Toggle(Core.Node.Autowarp, Localizer.Format("#MechJeb_LandingGuidance_checkbox1")); //Auto-warp
+
+                // Auto-warp to entry interface toggle
+                GUILayout.BeginHorizontal();
+                Core.Landing.AutoWarpToEntry =
+                    GUILayout.Toggle(Core.Landing.AutoWarpToEntry, "Warp to entry");
+                if (Core.Landing.AutoWarpToEntry)
+                {
+                    GuiUtils.SimpleTextBox("", Core.Landing.EntryInterfaceAltitude, "m", 50);
+                }
+                GUILayout.EndHorizontal();
 
                 Core.Landing.DeployGears =
                     GUILayout.Toggle(Core.Landing.DeployGears, Localizer.Format("#MechJeb_LandingGuidance_checkbox2")); //Deploy Landing Gear
