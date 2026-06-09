@@ -1,0 +1,87 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <RootNamespace>JSI</RootNamespace>
+    <AssemblyName>MechJebRPM</AssemblyName>
+    <ProjectGuid>{B5F2E8A1-3D9C-4F6B-8A7E-1C2D3E4F5G6H}</ProjectGuid>
+    <LangVersion>8</LangVersion>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+
+  <!--
+    RasterPropMonitor DLL path. Defaults to looking in the KSP directory
+    (specified by KspDir) with RPM installed. Override by setting RPMPath
+    in Directory.Build.props.user.
+  -->
+  <PropertyGroup Condition="'$(RPMPath)' == ''">
+    <RPMPath>$(KspDir)\GameData\JSI\RasterPropMonitor\Plugins\RasterPropMonitor.dll</RPMPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MechJeb2\MechJeb2.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="RasterPropMonitor">
+      <HintPath>$(RPMPath)</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(KspData)/Managed/Assembly-CSharp.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>$(KspData)/Managed/Assembly-CSharp-firstpass.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(KspData)/Managed/UnityEngine.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(KspData)/Managed/UnityEngine.CoreModule.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>$(KspData)/Managed/UnityEngine.IMGUIModule.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>$(KspData)/Managed/UnityEngine.InputLegacyModule.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>$(KspData)/Managed/UnityEngine.PhysicsModule.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>$(KspData)/Managed/UnityEngine.TextRenderingModule.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(KspData)/Managed/UnityEngine.UI.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="JetBrains.Annotations">
+      <HintPath>$(NuGetPackageRoot)jetbrains.annotations/2023.3.0/lib/net20/JetBrains.Annotations.dll</HintPath>
+      <Aliases>JetBrainsAnnotations</Aliases>
+    </Reference>
+  </ItemGroup>
+
+</Project>

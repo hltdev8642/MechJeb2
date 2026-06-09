@@ -78,7 +78,7 @@ _ReSharper*
 *.ncrunch*
 .*crunch*.local.xml
 
-# Installshield output folder 
+# Installshield output folder
 [Ee]xpress
 
 # DocProject is a documentation generator add-in
@@ -222,3 +222,6 @@ http-client.private.env.json
 
 # Claude settings
 .claude/settings.local.json
+
+*.zip
+chat.json
