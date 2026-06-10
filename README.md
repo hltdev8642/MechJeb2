@@ -20,6 +20,7 @@ info, [visit this KSP forum post][post].
         - [Via CKAN](#via-ckan)
             - [Development version of Mechjeb](#development-version-of-mechjeb)
     - [Common Issues](#common-issues)
+    - [New Features (2025–2026)](#new-features-20252026)
     - [Development](#development)
         - [Maintainers](#maintainers)
         - [Code Standards](#code-standards)
@@ -86,12 +87,43 @@ If you want the unstable dev version of MechJeb then :
 
 4. How do I report a bug?
 
-   Check if your problem has already been reported: <https://github.com/MuMech/MechJeb2/issues>  
+   Check if your problem has already been reported: <https://github.com/MuMech/MechJeb2/issues>
    If you found a problem which is similar to yours, feel free to add more information to the existing issue.
 
    **If you cannot find the problem**, get
    a [log](https://forum.kerbalspaceprogram.com/index.php?/topic/83212-how-to-get-support-read-first/#Logs) and create a
    new issue with a descriptive title of the problem.
+
+## New Features (2025–2026)
+
+This fork adds the following features on top of the upstream MechJeb2 release:
+
+### Autopilot Enhancements
+- **Atmospheric Drag-Compensating Ascent** — Dynamic pressure (Q) feedback loop for the ascent autopilot, producing more efficient gravity turns.
+- **Rendezvous Proximity Operations Mode** — Automatic transition from rendezvous guidance to docking autopilot when close to the target.
+- **Auto-Warp to Entry Interface** — Configurable auto-warp to a target entry altitude before executing landing guidance.
+- **Launch Window Planner** — Lambert-targeting-based launch window calculator integrated into the ascent planning UI.
+- **Docking Port Auto-Selection** — Automatically finds and targets the nearest-aligned docking port during approach.
+- **Hoverslam Terrain-Relative Navigation** — PQS raycast terrain altitude feed for the hoverslam autopilot, enabling precision landings on uneven terrain.
+
+### Flight Computer
+- **Multi-Node Maneuver Sequences** — Chain multiple maneuver nodes with configurable coast times for complex mission profiles.
+- **Maneuver Node Drag-Handle Preview** — Ghost orbit preview while dragging maneuver node handles (conic patch rendering).
+- **Aerobrake Calculator with Thermal Load** — Computes peak heating, thermal load, and safe entry corridors for aerobraking passes.
+- **RCS Translation Hold (No Target)** — Surface-relative velocity hold via RCS, useful for rover waypoint navigation and precision translation.
+- **Launch Window Synchronization** — Co-planar phasing burn calculator for rendezvous with target vessels in different orbits.
+
+### New Plugin Modules
+- **CommNet / DSN Link Planner** — Signal strength prediction, antenna power budgeting, relay orbit analysis, and link budget visualization.
+- **Thermal Management Window** — Real-time part temperature monitoring, heat flux display, radiator status, and overheat warnings.
+- **Satellite Coverage Mapper** — 2D ground-track coverage swath overlay, revisit-time analysis, and coverage-gap identification.
+- **Orbital Construction / Station Module** — Vessel tree hierarchy view, module-by-module docking guidance, center-of-mass calculator.
+- **Scripted Autopilot Sequencer** — Event-sequence mission planner for automated multi-step flight profiles.
+
+### UI/UX
+- **3D Trajectory Overlay** — Colored trajectory rendering in the Map View, showing predicted orbital paths, aerobrake tracks, and transfer trajectories.
+- **Window Layout Presets** — Named snapshot layouts (Ascent, Landing, Docking, Orbital, Custom) that save/restore window positions and visibility.
+- **RPM Integration** — RasterPropMonitor MFD integration exposing MJ2 functions in IVA cockpit displays (requires separate RasterPropMonitor install).
 
 ## Development
 
@@ -115,6 +147,7 @@ If you want the unstable dev version of MechJeb then :
 - [ALGLIB](https://www.alglib.net/)
 - [NSubstitute](https://nsubstitute.github.io/)
 - [xunit](https://xunit.net/)
+- [RasterPropMonitor](https://github.com/FirstPersonKSP/RasterPropMonitor) (required by `MechJebRPM` for IVA/RPM integration)
 
 ### Build
 
@@ -150,24 +183,54 @@ make install
 
 #### Windows
 
-1. Install the version of Unity that KSP uses ( Currently 2019.2.2f1 )
+##### Quick build (recommended)
 
-2. Configure your system environment variables and add:
+1. Set the `KSPDIR` environment variable to your KSP install path:
 
-- KSPDIR set to where your KSP install is ( usually **C:\Program Files (x86)\Steam\SteamApps\Common\Kerbal Space Program
-  ** )
-- MONO set to the path of Unity current mono.exe ( usually C:\Program
-  Files\Unity\Hub\Editor\2019.2.2f1\Editor\Data\MonoBleedingEdge\bin\mono.exe )
-- PDB2MDB set to the path of pdb2mdb.exe ( usually **C:\Program
-  Files\Unity\Hub\Editor\2019.2.2f1\Editor\Data\MonoBleedingEdge\lib\mono\4.5\pdb2mdb.exe** )
+   ```powershell
+   $env:KSPDIR = "C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program"
+   ```
 
-3. Load MechJeb2.sln and open the properties of the MechJeb2 project (Right-Click=>properties). In the "Reference Path"
-   section add the KSP libs folder to the list ( usually **C:\Program Files (x86)\Steam\SteamApps\Common\Kerbal Space
-   Program\KSP_x64_Data\Managed** )
+2. Build:
 
-4. Repeat step 3 for the MechJebLib, MechJebLibBindings, and MechJebLibTest projects.
+   ```powershell
+   dotnet build MechJeb2.sln
+   ```
 
-5. Perform `nuget restore` to get external dependencies such as JetBrains.Annotations.
+3. (optional) Assemble the mod into `_export\GameData\`:
+
+   ```powershell
+   .\_export\Export-MechJeb2.ps1 -Configuration Debug
+   ```
+
+   Copy `_export\GameData` over your KSP install's `GameData` folder to deploy.
+
+##### Full setup (legacy)
+
+1. Install the version of Unity that KSP uses (Currently 2019.2.2f1).
+
+2. Configure your system environment variables:
+
+   - `KSPDIR` — path to your KSP install (usually `C:\Program Files (x86)\Steam\SteamApps\Common\Kerbal Space Program`)
+   - `MONO` — path to Unity's mono.exe (usually `C:\Program Files\Unity\Hub\Editor\2019.2.2f1\Editor\Data\MonoBleedingEdge\bin\mono.exe`)
+   - `PDB2MDB` — path to pdb2mdb.exe (usually `C:\Program Files\Unity\Hub\Editor\2019.2.2f1\Editor\Data\MonoBleedingEdge\lib\mono\4.5\pdb2mdb.exe`)
+
+3. Load `MechJeb2.sln` and add the KSP managed assembly reference path to each project (MechJeb2, MechJebLib,
+   MechJebLibBindings, MechJebLibTest): the folder is usually
+   `C:\Program Files (x86)\Steam\SteamApps\Common\Kerbal Space Program\KSP_x64_Data\Managed`.
+
+4. Run `nuget restore` to fetch external dependencies (JetBrains.Annotations, etc.).
+
+##### Notes
+
+- The `RasterPropMonitor` assembly is required by the `MechJebRPM` project for IVA integration.
+  If you don't have RPM installed, build only `MechJeb2.csproj`:
+  ```powershell
+  dotnet build MechJeb2/MechJeb2.csproj
+  ```
+- The export script `Export-MechJeb2.ps1` builds the solution and assembles all DLLs,
+  assets, configs, and localization into a ready-to-deploy `_export\GameData\` folder.
+  Run it without `-SkipBuild` to rebuild automatically.
 
 ## License
 

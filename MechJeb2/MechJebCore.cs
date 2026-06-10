@@ -784,6 +784,18 @@ namespace MuMech
             Spinup         = GetComputerModule<MechJebModuleSpinupController>();
             Hoverslam      = GetComputerModule<MechJebModuleHoverslamSimulation>();
             SmartASS       = GetComputerModule<MechJebModuleSmartASS>();
+            RCSHold             = GetComputerModule<MechJebModuleRCSHold>();
+            LaunchWindowPlanner = GetComputerModule<MechJebModuleLaunchWindowPlanner>();
+            Aerobrake           = GetComputerModule<MechJebModuleAerobrakeCalculator>();
+            LaunchWindowSync    = GetComputerModule<MechJebModuleLaunchWindowSync>();
+            CommNetPlanner      = GetComputerModule<MechJebModuleCommNetPlanner>();
+            ThermalManager      = GetComputerModule<MechJebModuleThermalManager>();
+            ManeuverPreview     = GetComputerModule<MechJebModuleManeuverPreview>();
+            LayoutPresets       = GetComputerModule<MechJebModuleLayoutPresets>();
+            Traj3D              = GetComputerModule<MechJebModule3DTrajectory>();
+            OrbitalConstruction = GetComputerModule<MechJebModuleOrbitalConstruction>();
+            CoverageMapper      = GetComputerModule<MechJebModuleCoverageMapper>();
+            ScriptedAutopilot   = GetComputerModule<MechJebModuleScriptedAutopilot>();
         }
 
         public override void OnLoad(ConfigNode sfsNode)

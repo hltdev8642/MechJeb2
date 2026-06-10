@@ -1,4 +1,4 @@
-extern alias JetBrainsAnnotations;
+﻿extern alias JetBrainsAnnotations;
 using KSP.Localization;
 using UnityEngine;
 
@@ -10,8 +10,11 @@ namespace MuMech
 
         public MechJebModuleAttitudeAdjustment(MechJebCore core) : base(core) { }
 
+        private Vector2 _attitudeScrollPos;
+
         protected override void WindowGUI(int windowID)
         {
+            _attitudeScrollPos = GUILayout.BeginScrollView(_attitudeScrollPos, GUILayout.Width(370), GUILayout.Height(400));
             GUILayout.BeginVertical();
 
             //core.GetComputerModule<MechJebModuleCustomWindowEditor>().registry.Find(i => i.id == "Toggle:AttitudeController.useSAS").DrawItem();
@@ -152,12 +155,12 @@ namespace MuMech
 
 
             GUILayout.EndVertical();
-
+            GUILayout.EndScrollView();
 
             base.WindowGUI(windowID);
         }
 
-        protected override GUILayoutOption[] WindowOptions() => new[] { GuiUtils.LayoutWidth(350), GUILayout.Height(150) };
+        protected override GUILayoutOption[] WindowOptions() => new[] { GuiUtils.LayoutWidth(370) };
 
         public override string GetName() => Localizer.Format("#MechJeb_AttitudeAdjust_title"); //Attitude Adjustment
 
